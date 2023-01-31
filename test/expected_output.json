@@ -1,0 +1,32 @@
+[
+    {
+        "outputs": [
+            {
+                "type": "metaio_image",
+                "filename": "B0xxx_sCT.nii.gz"
+            }
+        ],
+        "inputs": [
+            {
+                "type": "metaio_image",
+                "filename": "B0xxx_sCT.nii.gz"
+            }
+        ],
+        "error_messages": []
+    },
+    {
+        "outputs": [
+            {
+                "type": "metaio_image",
+                "filename": "P1xxx_sCT.nii.gz"
+            }
+        ],
+        "inputs": [
+            {
+                "type": "metaio_image",
+                "filename": "P1xxx_sCT.nii.gz"
+            }
+        ],
+        "error_messages": []
+    }
+]
