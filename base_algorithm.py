@@ -174,9 +174,9 @@ class BaseSynthradAlgorithm(ABC):
 
         # Write segmentation file path to result.json for this case
         return {
-            "outputs": [dict(type="metaio_image", filename=out_path.name)],
+            "outputs": [dict(type="metaio_image", filename=str(out_path))],
             "inputs": [
-                dict(type="metaio_image", filename=fn.name)
+                dict(type="metaio_image", filename=str(fn))
                 for fn in images_file_paths.values()
             ],
             "error_messages": [],

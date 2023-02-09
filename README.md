@@ -72,6 +72,7 @@ The requirements, specified in `requirements.txt` are:
 * scikit-learn v0.24.2
 * scipy v1.6.3
 * scikit-image v0.19.3
+* SimpleITK
 
 ### Installation
 
@@ -84,12 +85,36 @@ or
 git clone git@github.com:SynthRAD2023/algorithm-template.git
 ```
 
+
+### Setup
+
+1. Generate dummy data with 
+```python
+python create_dummy_data.py
+````
+
+This will simulate the SynthRAD data structure with separate folders for `images` and `masks`,
+each file has a naming convention of 
+
+`<Task><Region><Hospital><Id_number>.<Extension>`
+
+`Task`: 1 (mr to ct) or 2 (cbct to ct)
+
+`Region`: B (brain) or P (pelvis)
+
+`Hospital`: A, B, C (Not all in every task/region)
+
+`Id_number`: 3 digits
+
+`Extension`: `.nii.gz`
+
+
 <!-- USAGE EXAMPLES -->
 
 ## Usage
 
-1. Data is to be organized so that the input files to run the algorithm on are placed in the `test` folder.
-The names of the files should match. 
+1. Data is to be organized so that the input files to run the algorithm on are placed in the `test` folder in the same format as the dummy generated data. Images are to be placed in the `images` folder and `masks` are to be placed in the masks folder. Corresponding image and mask should have the same name
+
 2. Run `test.sh`
 
 ### Functions Descriptions
@@ -101,6 +126,8 @@ The names of the files should match.
 	
 	command line usage:
 	./test.sh
+
+
 
 <!-- ROADMAP -->
 ## Roadmap

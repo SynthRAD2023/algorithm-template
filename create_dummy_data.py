@@ -7,42 +7,27 @@ import SimpleITK as sitk
 # as a part of their algorithm
 folder_structure = {
     "identifier": "1BAxxx",
-    "files": [
-        "ct.nii.gz",
-        "mask.nii.gz",
-        #  {"rtss": ["Body.nrrd", "Brain.nrrd"]}
-    ],
+    "folders": ["images", "masks"],
+    "extension": ".nii.gz",
 }
 
 
 def main(args):
     args.target_dir.mkdir(parents=True, exist_ok=True)
     identifier = folder_structure["identifier"]
-    for file in folder_structure["files"]:
-        if isinstance(file, dict):
-            for key, value in file.items():
-                folder = args.target_dir / key
-                folder.mkdir(parents=True, exist_ok=True)
-                for file in value:
-                    sitk.WriteImage(
-                        sitk.Image(100, 100, 100, sitk.sitkUInt8),
-                        folder / f"{identifier}_{file}",
-                    )
+    ext = folder_structure["extension"]
+    for folder_name in folder_structure["folders"]:
+        if folder_name == "masks":
+            out_type = sitk.sitkUInt8
         else:
-            if "mask" in file:
-                folder = args.target_dir / "mask"
-                folder.mkdir(parents=True, exist_ok=True)
-                sitk.WriteImage(
-                    sitk.Image(100, 100, 100, sitk.sitkUInt8),
-                    folder / f"{identifier}_{file}",
-                )
-            else:
-                folder = args.target_dir / "images"
-                folder.mkdir(parents=True, exist_ok=True)
-                sitk.WriteImage(
-                    sitk.Image(100, 100, 100, sitk.sitkInt16),
-                    folder / f"{identifier}_{file}",
-                )
+            out_type = sitk.sitkInt16
+
+        folder = args.target_dir / folder_name
+        folder.mkdir(parents=True, exist_ok=True)
+        sitk.WriteImage(
+            sitk.Image(100, 100, 100, out_type),
+            folder / f"{identifier}{ext}",
+        )
 
 
 if __name__ == "__main__":
