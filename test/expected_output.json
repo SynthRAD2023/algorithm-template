@@ -1,1 +1,1 @@
-[{"outputs": [{"type": "metaio_image", "filename": "1BAxxx_ct.nii.gz"}], "inputs": [{"type": "metaio_image", "filename": "1BAxxx_ct.nii.gz"}, {"type": "metaio_image", "filename": "1BAxxx_mask.nii.gz"}], "error_messages": []}]
+[{"outputs": [{"type": "metaio_image", "filename": "/output/1BAxxx.nii.gz"}], "inputs": [{"type": "metaio_image", "filename": "/input/images/1BAxxx.nii.gz"}, {"type": "metaio_image", "filename": "/input/masks/1BAxxx.nii.gz"}], "error_messages": []}]
