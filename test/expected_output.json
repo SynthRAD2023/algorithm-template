@@ -1,1 +1,21 @@
-[{"outputs": [{"type": "metaio_image", "filename": "/output/1BAxxx.nii.gz"}], "inputs": [{"type": "metaio_image", "filename": "/input/images/1BAxxx.nii.gz"}, {"type": "metaio_image", "filename": "/input/masks/1BAxxx.nii.gz"}], "error_messages": []}]
+[
+    {
+        "outputs": [
+            {
+                "type": "metaio_image",
+                "filename": "/output/images/synthetic-ct/1BAxxx.nii.gz"
+            }
+        ],
+        "inputs": [
+            {
+                "type": "metaio_image",
+                "filename": "/input/images/mri/1BAxxx.nii.gz"
+            },
+            {
+                "type": "metaio_image",
+                "filename": "/input/images/body/1BAxxx.nii.gz"
+            }
+        ],
+        "error_messages": []
+    }
+]
