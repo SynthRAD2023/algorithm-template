@@ -28,40 +28,28 @@ logger = logging.getLogger(__name__)
 
 # Check if .env file exists and load it
 if Path(".env").exists():
-    from dotenv import load_dotenv
+    from dotenv import dotenv_values
+    config = dotenv_values(".env")
+    
+    TASK_TYPE = config["TASK_TYPE"]
+    INPUT_FOLDER = config["INPUT_FOLDER"]
 
-    load_dotenv()
-
-    TASK_TYPE = os.environ["TASK_TYPE"]
-    EXECUTE_IN_DOCKER = os.environ["EXECUTE_IN_DOCKER"] == 1
-    PHASE = os.environ["PHASE"]
-
+    print("########## ENVIRONMENT VARIABLES ##########")
     print(f"TASK_TYPE: {TASK_TYPE}")
-    print(f"EXECUTE_IN_DOCKER: {EXECUTE_IN_DOCKER}")
-    print(f"PHASE: {PHASE}")
+    print(f"INPUT_FOLDER: {INPUT_FOLDER}")
 else:
     TASK_TYPE = "mri"
-    EXECUTE_IN_DOCKER = False
-    PHASE = "test"
+    INPUT_FOLDER = "/input"
 
-DEFAULT_IMAGE_PATH = (
-    Path(f"/input/images/{TASK_TYPE}")
-    if EXECUTE_IN_DOCKER
-    else Path(f"./{PHASE}/images/{TASK_TYPE}/")
-)
-DEFAULT_MASK_PATH = (
-    Path("/input/images/body") if EXECUTE_IN_DOCKER else Path(f"./{PHASE}/images/body/")
-)
+if INPUT_FOLDER == "/input":
+    OUTPUT_FOLDER = "/output"
+else:
+    OUTPUT_FOLDER = "./output"
 
-DEFAULT_OUTPUT_PATH = (
-    Path("/output/images/synthetic-ct")
-    if EXECUTE_IN_DOCKER
-    else Path("./output/images/synthetic-ct/")
-)
-
-DEFAULT_OUTPUT_FILE = (
-    Path("/output/results.json") if EXECUTE_IN_DOCKER else Path("./output/results.json")
-)
+DEFAULT_IMAGE_PATH = Path(f"{INPUT_FOLDER}/images/{TASK_TYPE}")
+DEFAULT_MASK_PATH = Path(f"{INPUT_FOLDER}/images/body")
+DEFAULT_OUTPUT_PATH = Path(f"{OUTPUT_FOLDER}/images/synthetic-ct")
+DEFAULT_OUTPUT_FILE = Path(f"{OUTPUT_FOLDER}/results.json")
 
 
 class BaseSynthradAlgorithm(ABC):
