@@ -6,28 +6,44 @@ import SimpleITK as sitk
 # for the training phase. The mask however, should be accessible to the algorithm as participants may use them
 # as a part of their algorithm
 folder_structure = {
-    "identifier": "1BAxxx",
-    "folders": ["images", "masks"],
+    "folders": ["1BAxxx", "1PAxxx", "2BAxxx", "2PAxxx"],
     "extension": ".nii.gz",
 }
 
 
 def main(args):
     args.target_dir.mkdir(parents=True, exist_ok=True)
-    identifier = folder_structure["identifier"]
-    ext = folder_structure["extension"]
-    for folder_name in folder_structure["folders"]:
-        if folder_name == "masks":
-            out_type = sitk.sitkUInt8
-        else:
-            out_type = sitk.sitkInt16
 
-        folder = args.target_dir / folder_name
+    folders = folder_structure["folders"]
+    ext = folder_structure["extension"]
+    
+
+    for folder_stem in folders:
+        folder = args.target_dir / folder_stem
         folder.mkdir(parents=True, exist_ok=True)
+        
+        # Write dummy image
+
+        if folder_stem.startswith("1"):
+            identifier = "mr"
+        elif folder_stem.startswith("2"):
+            identifier = "cbct"
+        else:
+            raise ValueError(f"Unknown folder stem {folder_stem}")
+
         sitk.WriteImage(
-            sitk.Image(100, 100, 100, out_type),
+            sitk.Image(100, 100, 100, sitk.sitkInt16),
             folder / f"{identifier}{ext}",
         )
+
+        # Write dummy mask
+        sitk.WriteImage(
+            sitk.Image(100, 100, 100, sitk.sitkUInt8),
+            folder / f"mask{ext}",
+        )
+
+
+
 
 
 if __name__ == "__main__":
