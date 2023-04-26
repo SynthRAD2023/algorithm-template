@@ -1,65 +1,103 @@
 import json
 import logging
+import os
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Pattern,
-                    Set, Tuple, Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Pattern,
+    Set,
+    Tuple,
+    Union,
+)
 
 import numpy as np
 import SimpleITK
 from evalutils.exceptions import FileLoaderError
 from evalutils.io import FileLoader, ImageLoader, SimpleITKLoader
-from evalutils.validators import (UniqueImagesValidator,
-                                  UniquePathIndicesValidator)
+from evalutils.validators import UniqueImagesValidator, UniquePathIndicesValidator
 from pandas import DataFrame
 
 logger = logging.getLogger(__name__)
 
-execute_in_docker = True
+# Check if .env file exists and load it
+if Path(".env").exists():
+    from dotenv import load_dotenv
 
-DEFAULT_IMAGE_PATH = Path("/input/images/mri") if execute_in_docker else Path("./test/images/mri/")
-DEFAULT_MASK_PATH = Path("/input/images/body") if execute_in_docker else Path("./test/images/body/")
+    load_dotenv()
 
-DEFAULT_OUTPUT_PATH = Path("/output/images/synthetic-ct") if execute_in_docker else Path("./output/images/synthetic-ct/")
+    TASK_TYPE = os.environ["TASK_TYPE"]
+    EXECUTE_IN_DOCKER = os.environ["EXECUTE_IN_DOCKER"] == 1
+    PHASE = os.environ["PHASE"]
+
+    print(f"TASK_TYPE: {TASK_TYPE}")
+    print(f"EXECUTE_IN_DOCKER: {EXECUTE_IN_DOCKER}")
+    print(f"PHASE: {PHASE}")
+else:
+    TASK_TYPE = "mri"
+    EXECUTE_IN_DOCKER = False
+    PHASE = "test"
+
+DEFAULT_IMAGE_PATH = (
+    Path(f"/input/images/{TASK_TYPE}")
+    if EXECUTE_IN_DOCKER
+    else Path(f"./{PHASE}/images/{TASK_TYPE}/")
+)
+DEFAULT_MASK_PATH = (
+    Path("/input/images/body") if EXECUTE_IN_DOCKER else Path(f"./{PHASE}/images/body/")
+)
+
+DEFAULT_OUTPUT_PATH = (
+    Path("/output/images/synthetic-ct")
+    if EXECUTE_IN_DOCKER
+    else Path("./output/images/synthetic-ct/")
+)
 
 DEFAULT_OUTPUT_FILE = (
-    Path("/output/results.json") if execute_in_docker else Path("./output/results.json")
+    Path("/output/results.json") if EXECUTE_IN_DOCKER else Path("./output/results.json")
 )
+
+
 class BaseSynthradAlgorithm(ABC):
     def __init__(
         self,
         input_path: Path = DEFAULT_IMAGE_PATH,
-        mask_path: Path = DEFAULT_MASK_PATH, 
+        mask_path: Path = DEFAULT_MASK_PATH,
         output_path: Path = DEFAULT_OUTPUT_PATH,
         output_file: Path = DEFAULT_OUTPUT_FILE,
         validators: Optional[Dict[str, callable]] = None,
         file_loader: FileLoader = SimpleITKLoader(),
     ):
         """
-        Parameters
-        ----------
+         Parameters
+         ----------
 
-        input_path
-            The path in the container where the input images will be loaded from.
-            from. Default: `/input/images/mri/`
-        mask_path
-            The path in the container where the input masks will be loaded from.
-            Default: `/input/images/body/`
-        output_path
-            The path in the container where the output images will be written.
-            Default: `/output/images/synthetic-ct/`
- 
-        output_file
-            The path to the location where the results will be written.
-            Default: `/output/results.json`
-        file_loader
-            The loaders that will be used to get all files.
-            Default: `evalutils.io.SimpleITKLoader` for `image` and `mask`          
-       validators
-            A dictionary containing the validators that will be used on the
-            loaded data per file_loader key. Default:
-            `evalutils.validators.UniqueImagesValidator` for `input_image`              
+         input_path
+             The path in the container where the input images will be loaded from.
+             from. Default: `/input/images/mri/`
+         mask_path
+             The path in the container where the input masks will be loaded from.
+             Default: `/input/images/body/`
+         output_path
+             The path in the container where the output images will be written.
+             Default: `/output/images/synthetic-ct/`
+
+         output_file
+             The path to the location where the results will be written.
+             Default: `/output/results.json`
+         file_loader
+             The loaders that will be used to get all files.
+             Default: `evalutils.io.SimpleITKLoader` for `image` and `mask`
+        validators
+             A dictionary containing the validators that will be used on the
+             loaded data per file_loader key. Default:
+             `evalutils.validators.UniqueImagesValidator` for `input_image`
         """
 
         self._index_keys = ["image", "mask"]
@@ -80,15 +118,12 @@ class BaseSynthradAlgorithm(ABC):
 
     def load(self):
         self.images = self._load_cases(
-            folder=self.input_path,
-            file_loader=self._file_loader
+            folder=self.input_path, file_loader=self._file_loader
         )
 
         self.masks = self._load_cases(
-            folder=self.mask_path,
-            file_loader=self._file_loader
+            folder=self.mask_path, file_loader=self._file_loader
         )
-
 
     def _load_cases(
         self,
@@ -124,9 +159,7 @@ class BaseSynthradAlgorithm(ABC):
         self._case_results = []
 
         for idx, case in enumerate(zip(self.images, self.masks)):
-            self._case_results.append(
-                self.process_case(idx=idx, case=case))
-            
+            self._case_results.append(self.process_case(idx=idx, case=case))
 
     def process_case(self, idx: int, case: List[DataFrame]) -> Dict:
         images, images_file_paths = {}, {}
@@ -160,15 +193,14 @@ class BaseSynthradAlgorithm(ABC):
 
         if not isinstance(input_image_file_loader, ImageLoader):
             raise RuntimeError("The used FileLoader was not of subclass ImageLoader")
-        
+
         # Load the image
         input_image = input_image_file_loader.load_image(input_image_file_path)
-        
+
         # Check that it is the expected image
         if input_image_file_loader.hash_image(input_image) != image["hash"]:
             raise RuntimeError("Image hashes do not match")
         return input_image, input_image_file_path
-
 
     @abstractmethod
     def predict(self, *, input_dict: Dict[str, SimpleITK.Image]) -> SimpleITK.Image:

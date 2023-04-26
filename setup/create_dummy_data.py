@@ -16,12 +16,11 @@ def main(args):
 
     folders = folder_structure["folders"]
     ext = folder_structure["extension"]
-    
 
     for folder_stem in folders:
         folder = args.target_dir / folder_stem
         folder.mkdir(parents=True, exist_ok=True)
-        
+
         # Write dummy image
 
         if folder_stem.startswith("1"):
@@ -41,9 +40,6 @@ def main(args):
             sitk.Image(100, 100, 100, sitk.sitkUInt8),
             folder / f"mask{ext}",
         )
-
-
-
 
 
 if __name__ == "__main__":
