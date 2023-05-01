@@ -56,25 +56,21 @@
 
 <!-- ABOUT THE PROJECT -->
 ## Goal
+The goal of this repository is to provide a seamless and efficient integration of your algorithm into the Grand Challenge platform. This repository offers a template for packaging your algorithm in a Docker container, ensuring compatibility with the input and output formats of the SynthRAD2023 challenge. 
 
-The source code for the participant algorithm container for
-SynthRAD2023, generated with
-evalutils version 0.3.1.
+With this template, you can submit your algorithm (with minimal effort) to the test phases of the challenge (and optionally the validation phases). You can use the preliminary test phase to make sure everything is in order with your submission and get an initial estimate of your algorithms performance. 
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
 ### Dependencies
 
-The user should have access to Docker [https://docs.docker.com/].
-The requirements, specified in `requirements.txt` are:
-* evalutils v0.3.1
-* scikit-learn v0.24.2
-* scipy v1.6.3
-* scikit-image v0.19.3
-* SimpleITK
+For building the algorithm for submission, the user should have access to Docker [https://docs.docker.com/] on their system. (Note: Submissions to the test phase are allowed only with docker containers)
 
-### Installation
+Please make sure to list the requirements for your algorithm in the `requirements.txt` file as this will be picked up when building the docker container. 
+
+
+### Download
 
 1. Clone the repo
 ```sh
@@ -88,46 +84,130 @@ git clone git@github.com:SynthRAD2023/algorithm-template.git
 
 ### Setup
 
-1. Generate dummy data with 
-```python
-python create_dummy_data.py
-````
+Dummy data (randomly created scans) for testing the docker has already been provided in the `test` folder. It should be in the following format,
 
-This will simulate the SynthRAD data structure with separate folders for `images` and `masks`,
-each file has a naming convention of 
+```
+algorithm-template
+└── test
+    ├── images
+    │   ├── body
+    │   │   └── 1BAxxx.nii.gz
+    │   └── mri
+    │       └── 1BAxxx.nii.gz
+    └── expected_output.json
+```
 
-`<Task><Region><Hospital><Id_number>.<Extension>`
-
-`Task`: 1 (mr to ct) or 2 (cbct to ct)
-
-`Region`: B (brain) or P (pelvis)
-
-`Hospital`: A, B, C (Not all in every task/region)
-
-`Id_number`: 3 digits
-
-`Extension`: `.nii.gz`
+`test/images` simulates the input data provided to the docker image while it is run on the test data by the Grand Challenge platform. `test/expected_output.json` is present to check if your algorithm provides the expected output on the inputs provided to it. 
 
 
 <!-- USAGE EXAMPLES -->
 
 ## Usage
 
-1. Data is to be organized so that the input files to run the algorithm on are placed in the `test` folder in the same format as the dummy generated data. Images are to be placed in the `images` folder and `masks` are to be placed in the masks folder. Corresponding image and mask should have the same name
+First, run `test.sh`
 
-2. Run `test.sh`
+`test.sh` will build the docker container (which contains the algorithm), provide the `test` folder as input to the docker container and run the algorithm. The output of the algorithm will be placed in the `output` directory. Tests will also be run to check if the algorithm provides the expected output.
 
-### Functions Descriptions
-
-**test.sh**
-
-	description:
-	create the docker and run the algorithm-template
-	
-	command line usage:
-	./test.sh
+Note: It is recommended to run this before you integrate your own algorithm into the template.
 
 
+### Using the template
+To integrate your algorithm into this template, you need to modify the `predict` function of the `SynthradAlgorithm` in the `process.py` file.
+```{python}
+class SynthradAlgorithm(BaseSynthradAlgorithm):
+    ...
+
+    def predict(self, input_dict: Dict[str, sitk.Image]) -> sitk.Image:
+        """
+        Your algorithm implementation.
+        """
+        # Your code here
+        return output_image
+```
+
+You might need to load your models first before running the algorithm and this can be done in the `__init__` function of the `SynthradAlgorithm` class. For instance, to load a pytorch model,
+```{python}
+class SynthradAlgorithm(BaseSynthradAlgorithm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Load the PyTorch model
+        model_path = os.path.join(os.path.dirname(__file__), 'your_model.pt')
+        self.model = torch.load(model_path)
+        self.model.eval()
+```        
+
+### Making submissions to Task 1 and 2.
+Since the challenge contains two tasks, you will need to provide separate docker containers for each (even if you run the exact same algorithm on both). To configure which task your docker will be built for, we have provided a `.env` file. You can modify it before building the docker image and your docker will be built for the selected task.
+```
+TASK_TYPE="cbct" # Set to mri (Task 1) or cbct (Task 2)
+INPUT_FOLDER="/input" # Do not change unless you want to test locally
+```
+
+Change the `TASK_TYPE` to "cbct" or "mri" depending on the task you want to make the submission for. Do not change the `INPUT_FOLDER` unless you are testing locally.
+
+
+### Building and exporting the docker container with your new algorithm!
+It is recommended to run `test.sh` first as it will ensure that your new algorithm always runs as expected. 
+
+1. Run the `export.sh` command. You can provide a name as the next argument to allow naming your docker containers. 
+  Example: `./export.sh cbct_docker`
+
+2. You might need to wait a bit for this process to complete (depending on your model size and dependencies added by you) as it builds and saves the docker as `.tar.gz`. Once you have this `.tar.gz` file, you can submit it on the grand challenge portal in the SynthRAD submissions! 
+
+
+Video will be uploaded very soon on how you can submit it on the GC portal!
+
+### Adding your own model files to the docker container
+This step requires a bit of familiarity with the docker ecosystem as you will need to edit the `Dockerfile` to do so. The models will be embedded into the docker container allowing the docker to run independently on any system!
+
+As a start, you can copy model files into the docker by adding something like this into the `Dockerfile`,
+```
+COPY --chown=algorithm:algorithm your_model.pt /opt/algorithm/
+
+```
+
+Once you do this, `your_model.pt` should be accessible in the `___init___` function as described above. 
+
+
+### Testing your algorithm locally.
+In order to first test your algorithm locally (without the docker build process etc. - significantly speeds up over multiple iterations),
+1. Configure `.env` for local mode by setting the `INPUT_FOLDER` to the path where you want to provide the inputs from. For instance, the `test` folder is a good starting place. But you could also provide your own data. (!!! NOTE: SET THE `INPUT_FOLDER` back to `/input` before your build the docker)
+
+2. Run `python process.py` in an environment with all your dependencies installed. 
+
+
+This should run your algorithm locally and allow you to test different iterations before making a docker container.
+
+
+### Reformatting your own data
+In the `setup` folder, the `create_dummy_data.py` gives an example of how the dummy data is created for the docker container. You can reformat your own data in accordance to be run by the docker container.
+
+For the MRI task, this is how the data should be organized.
+```
+data
+  ├── images
+  │   ├── body
+  │   │   └── 1BAxxx.nii.gz
+  │   │   └── ... 
+  │   ├── mri
+  │   │   └── 1BAxxx.nii.gz
+  │   │   └── ... 
+
+```
+
+Similarly for the CBCT task,
+```
+data
+  ├── images
+  │   ├── body
+  │   │   └── 1BAxxx.nii.gz
+  │   │   └── ... 
+  │   ├── cbct
+  │   │   └── 1BAxxx.nii.gz
+  │   │   └── ... 
+
+```
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -171,13 +251,13 @@ Project Link: [https://github.com/SynthRAD2023/algorithm-template](https://githu
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/
 #reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/SynthRAD2023/repo.svg?style=flat-square
-[contributors-url]: https://github.com/SynthRAD2023/repo/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/SynthRAD2023/repo.svg?style=flat-square
-[forks-url]: https://github.com/SynthRAD2023/repo/network/members
-[stars-shield]: https://img.shields.io/github/stars/SynthRAD2023/repo.svg?style=flat-square
-[stars-url]: https://github.com/SynthRAD2023/repo/stargazers
-[issues-shield]: https://img.shields.io/github/issues/SynthRAD2023/repo.svg?style=flat-square
-[issues-url]: https://github.com/SynthRAD2023/repo/issues
-[license-shield]: https://img.shields.io/github/license/SynthRAD2023/repo.svg?style=flat-square
-[license-url]: https://github.com/SynthRAD2023/repo/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/SynthRAD2023/algorithm-template.svg?style=flat-square
+[contributors-url]: https://github.com/SynthRAD2023/algorithm-template/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/SynthRAD2023/algorithm-template.svg?style=flat-square
+[forks-url]: https://github.com/SynthRAD2023/algorithm-template/network/members
+[stars-shield]: https://img.shields.io/github/stars/SynthRAD2023/algorithm-template.svg?style=flat-square
+[stars-url]: https://github.com/SynthRAD2023/algorithm-template/stargazers
+[issues-shield]: https://img.shields.io/github/issues/SynthRAD2023/algorithm-template.svg?style=flat-square
+[issues-url]: https://github.com/SynthRAD2023/algorithm-template/issues
+[license-shield]: https://img.shields.io/github/license/SynthRAD2023/algorithm-template.svg?style=flat-square
+[license-url]: https://github.com/SynthRAD2023/algorithm-template/blob/master/LICENSE.txt
