@@ -155,8 +155,8 @@ It is recommended to run `test.sh` first as it will ensure that your new algorit
 
 2. You might need to wait a bit for this process to complete (depending on your model size and dependencies added by you) as it builds and saves the docker as `.tar.gz`. Once you have this `.tar.gz` file, you can submit it on the grand challenge portal in the SynthRAD submissions! 
 
-
-Video will be uploaded very soon on how you can submit it on the GC portal!
+### Uploading on GC portal
+Please find detailed video instructions @ https://www.youtube.com/watch?v=RYj9BOJJNV0
 
 ### Adding your own model files to the docker container
 This step requires a bit of familiarity with the docker ecosystem as you will need to edit the `Dockerfile` to do so. The models will be embedded into the docker container allowing the docker to run independently on any system!
