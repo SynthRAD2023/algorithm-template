@@ -260,4 +260,4 @@ Project Link: [https://github.com/SynthRAD2023/algorithm-template](https://githu
 [issues-shield]: https://img.shields.io/github/issues/SynthRAD2023/algorithm-template.svg?style=flat-square
 [issues-url]: https://github.com/SynthRAD2023/algorithm-template/issues
 [license-shield]: https://img.shields.io/github/license/SynthRAD2023/algorithm-template.svg?style=flat-square
-[license-url]: https://github.com/SynthRAD2023/algorithm-template/blob/master/LICENSE.txt
+[license-url]: https://github.com/SynthRAD2023/algorithm-template/blob/master/LICENSE.md
