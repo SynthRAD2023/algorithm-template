@@ -65,7 +65,7 @@ With this template, you can submit your algorithm (with minimal effort) to the t
 
 ### Dependencies
 
-For building the algorithm for submission, the user should have access to Docker [https://docs.docker.com/] on their system. (Note: Submissions to the test phase are allowed only with docker containers)
+For building the algorithm for submission, the user should have access to Docker [https://docs.docker.com/] on their system. (Note: Submissions to the test phase are allowed only with docker containers). This algorithm template was tested using Ubuntu 20.04.6 and Docker 23.0.4.
 
 Please make sure to list the requirements for your algorithm in the `requirements.txt` file as this will be picked up when building the docker container. 
 
@@ -110,6 +110,36 @@ First, run `test.sh`
 
 Note: It is recommended to run this before you integrate your own algorithm into the template.
 
+The output of the test.sh script should look similar to this:
+
+```
+########## ENVIRONMENT VARIABLES ##########
+TASK_TYPE: mri
+INPUT_FOLDER: /input
+#Text outputs of your scripts will appear here
+[
+    {
+        "error_messages": [],
+        "inputs": [
+            {
+                "filename": "/input/images/mri/1BAxxx.nii.gz",
+                "type": "metaio_image"
+            },
+            {
+                "filename": "/input/images/body/1BAxxx.nii.gz",
+                "type": "metaio_image"
+            }
+        ],
+        "outputs": [
+            {
+                "filename": "/output/images/synthetic-ct/1BAxxx.nii.gz",
+                "type": "metaio_image"
+            }
+        ]
+    }
+]
+Tests successfully passed...
+```
 
 ### Using the template
 To integrate your algorithm into this template, you need to modify the `predict` function of the `SynthradAlgorithm` in the `process.py` file.
