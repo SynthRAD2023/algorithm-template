@@ -64,8 +64,8 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
         mask_sitk = input_dict["mask"]
         
         # convert sitk images to np arrays
-        mask_np = sitk.GetArrayFromImage(mask_sitk)
-        mr_np = sitk.GetArrayFromImage(mr_sitk)
+        mask_np = sitk.GetArrayFromImage(mask_sitk).astype('float32')
+        mr_np = sitk.GetArrayFromImage(mr_sitk).astype('float32')
 
         # check if GPU is available 
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -77,7 +77,8 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
 
         # sCT generation placeholder (set values inside mask to 0)
         mr_tensor[mask_tensor==1] = 0
-
+        mr_tensor[mask_tensor==0] = -1
+        
         # convert tensor back to np array
         sCT = mr_tensor.cpu().numpy()
 
