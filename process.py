@@ -77,7 +77,7 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
 
         # sCT generation placeholder (set values inside mask to 0)
         mr_tensor[mask_tensor==1] = 0
-        mr_tensor[mask_tensor==0] = -1
+        mr_tensor[mask_tensor==0] = -1000
         
         # convert tensor back to np array
         sCT = mr_tensor.cpu().numpy()
