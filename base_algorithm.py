@@ -4,24 +4,15 @@ import os
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Pattern,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import (Any, Callable, Dict, Iterable, List, Optional, Pattern,
+                    Set, Tuple, Union)
 
 import numpy as np
 import SimpleITK
 from evalutils.exceptions import FileLoaderError
 from evalutils.io import FileLoader, ImageLoader, SimpleITKLoader
-from evalutils.validators import UniqueImagesValidator, UniquePathIndicesValidator
+from evalutils.validators import (UniqueImagesValidator,
+                                  UniquePathIndicesValidator)
 from pandas import DataFrame
 
 logger = logging.getLogger(__name__)
@@ -29,8 +20,9 @@ logger = logging.getLogger(__name__)
 # Check if .env file exists and load it
 if Path(".env").exists():
     from dotenv import dotenv_values
+
     config = dotenv_values(".env")
-    
+
     TASK_TYPE = config["TASK_TYPE"]
     INPUT_FOLDER = config["INPUT_FOLDER"]
 

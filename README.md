@@ -167,6 +167,14 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
         self.model.eval()
 ```        
 
+### To run your docker locally with GPU Support
+Ensure that you have the nvidia-container-toolkit installed along with your docker installation. 
+
+You can follow the instructions here: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+
+Once you have this installed, you can run `./test_gpu.sh` instead of `test.sh` 
+
+
 ### Making submissions to Task 1 and 2.
 Since the challenge contains two tasks, you will need to provide separate docker containers for each (even if you run the exact same algorithm on both). To configure which task your docker will be built for, we have provided a `.env` file. You can modify it before building the docker image and your docker will be built for the selected task.
 ```

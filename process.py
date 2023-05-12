@@ -6,29 +6,6 @@ import torch
 from base_algorithm import BaseSynthradAlgorithm
 
 
-# Utility function to create a dummy masked image
-def set_mask_value(image, mask, inside_value, outside_value):
-    # Ensure the mask is binary
-    binary_mask = sitk.BinaryThreshold(mask, 1, 255, 255, 0)
-
-    # Create casted image with same origin, spacing, and direction as input image
-    casted_image = sitk.Cast(image, binary_mask.GetPixelID())
-
-    # Set values inside the mask
-    inside_masked_image = sitk.Mask(casted_image, binary_mask, inside_value)
-
-    # Invert the mask
-    inverted_mask = sitk.InvertIntensity(binary_mask, maximum=255)
-
-    # Set values outside the mask
-    outside_masked_image = sitk.Mask(casted_image, inverted_mask, outside_value)
-
-    # Combine both masked parts
-    masked_image = inside_masked_image + outside_masked_image
-
-    return masked_image
-
-
 class SynthradAlgorithm(BaseSynthradAlgorithm):
     """
     This class implements a simple synthetic CT generation algorithm that segments all values greater than 2 in the input image.
@@ -59,33 +36,33 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
             If the keys of `input_dict` are not ["image", "mask"]
         """
         assert list(input_dict.keys()) == ["image", "mask"]
-        
+
         mr_sitk = input_dict["image"]
         mask_sitk = input_dict["mask"]
-        
-        # convert sitk images to np arrays
-        mask_np = sitk.GetArrayFromImage(mask_sitk).astype('float32')
-        mr_np = sitk.GetArrayFromImage(mr_sitk).astype('float32')
 
-        # check if GPU is available 
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        print('Using device:', device)
-        
+        # convert sitk images to np arrays
+        mask_np = sitk.GetArrayFromImage(mask_sitk).astype("float32")
+        mr_np = sitk.GetArrayFromImage(mr_sitk).astype("float32")
+
+        # check if GPU is available
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        print("Using device:", device)
+
         # convert np arrays to tensors
-        mr_tensor = torch.tensor(mr_np,device=device)
-        mask_tensor = torch.tensor(mask_np,device=device)
+        mr_tensor = torch.tensor(mr_np, device=device)
+        mask_tensor = torch.tensor(mask_np, device=device)
 
         # sCT generation placeholder (set values inside mask to 0)
-        mr_tensor[mask_tensor==1] = 0
-        mr_tensor[mask_tensor==0] = -1000
-        
+        mr_tensor[mask_tensor == 1] = 0
+        mr_tensor[mask_tensor == 0] = -1000
+
         # convert tensor back to np array
         sCT = mr_tensor.cpu().numpy()
 
         # convert np array to sitk image
         sCT_sitk = sitk.GetImageFromArray(sCT)
         sCT_sitk.CopyInformation(mr_sitk)
-        
+
         return sCT_sitk
 
 
