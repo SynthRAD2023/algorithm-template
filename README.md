@@ -41,10 +41,25 @@
 
 * [Goal](#goal)
 * [Getting Started](#getting-started)
-  * [Dependencies](#prerequisites)
-  * [Installation](#installation)
+  * [Dependencies](#dependencies)
+  * [Download](#download)
+
 * [Usage](#usage)
-  * [Function Descriptions](#functions-descriptions)
+  * [Using the template](#using-the-template)
+  * [Making submissions](#making-submissions-to-task-1-and-2)
+  * [Build and export docker](#building-and-exporting-the-docker-container-with-your-new-algorithm)
+  * [Uploading on GC portal](#uploading-on-gc-portal)
+  * [Adding model files](#adding-your-own-model-files-to-the-docker-container)
+  * [Run docker locally with GPU support ](#to-run-your-docker-locally-with-gpu-support)
+
+  * [Testing locally w/o docker](#testing-your-algorithm-locally-without-docker)
+  * [Reformatting your data](#reformatting-your-own-data)
+
+
+
+
+
+
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
@@ -167,13 +182,6 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
         self.model.eval()
 ```        
 
-### To run your docker locally with GPU Support
-Ensure that you have the nvidia-container-toolkit installed along with your docker installation. 
-
-You can follow the instructions here: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
-
-Once you have this installed, you can run `./test_gpu.sh` instead of `test.sh` 
-
 
 ### Making submissions to Task 1 and 2.
 Since the challenge contains two tasks, you will need to provide separate docker containers for each (even if you run the exact same algorithm on both). To configure which task your docker will be built for, we have provided a `.env` file. You can modify it before building the docker image and your docker will be built for the selected task.
@@ -207,8 +215,14 @@ COPY --chown=algorithm:algorithm your_model.pt /opt/algorithm/
 
 Once you do this, `your_model.pt` should be accessible in the `___init___` function as described above. 
 
+### To run your docker locally with GPU Support
+Ensure that you have the nvidia-container-toolkit installed along with your docker installation. 
 
-### Testing your algorithm locally.
+You can follow the instructions here: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+
+Once you have this installed, you can run `./test_gpu.sh` instead of `test.sh` 
+
+### Testing your algorithm locally (without docker).
 In order to first test your algorithm locally (without the docker build process etc. - significantly speeds up over multiple iterations),
 1. Configure `.env` for local mode by setting the `INPUT_FOLDER` to the path where you want to provide the inputs from. For instance, the `test` folder is a good starting place. But you could also provide your own data. (!!! NOTE: SET THE `INPUT_FOLDER` back to `/input` before your build the docker)
 
@@ -267,7 +281,7 @@ Any contributions you make are **greatly appreciated**.
 <!-- LICENSE -->
 ## License
 
-Distributed under the GNU General Public License v3.0. See `LICENSE` for more information.
+Distributed under the GNU General Public License v3.0. See `LICENSE.md` for more information.
 
 <!-- CONTACT -->
 ## Contact
