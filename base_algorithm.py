@@ -39,6 +39,7 @@ else:
     OUTPUT_FOLDER = "./output"
 
 DEFAULT_IMAGE_PATH = Path(f"{INPUT_FOLDER}/images/{TASK_TYPE}")
+DEFAULT_REGION_PATH = Path(f"{INPUT_FOLDER}/region.json")
 DEFAULT_MASK_PATH = Path(f"{INPUT_FOLDER}/images/body")
 DEFAULT_OUTPUT_PATH = Path(f"{OUTPUT_FOLDER}/images/synthetic-ct")
 DEFAULT_OUTPUT_FILE = Path(f"{OUTPUT_FOLDER}/results.json")
@@ -49,6 +50,7 @@ class BaseSynthradAlgorithm(ABC):
         self,
         input_path: Path = DEFAULT_IMAGE_PATH,
         mask_path: Path = DEFAULT_MASK_PATH,
+        region_path: Path = DEFAULT_REGION_PATH,
         output_path: Path = DEFAULT_OUTPUT_PATH,
         output_file: Path = DEFAULT_OUTPUT_FILE,
         validators: Optional[Dict[str, callable]] = None,
@@ -83,6 +85,7 @@ class BaseSynthradAlgorithm(ABC):
         self._index_keys = ["image", "mask"]
         self.input_path = input_path
         self.mask_path = mask_path
+        self.region_path = region_path
         self.output_path = output_path
         self.output_file = output_file
         self._file_loader = file_loader
@@ -104,6 +107,9 @@ class BaseSynthradAlgorithm(ABC):
         self.masks = self._load_cases(
             folder=self.mask_path, file_loader=self._file_loader
         )
+
+        with open(self.region_path, "r") as f:
+            self.region = json.load(f)
 
     def _load_cases(
         self,
@@ -147,6 +153,8 @@ class BaseSynthradAlgorithm(ABC):
         images["image"], images_file_paths["image"] = self._load_input_image(case[0])
         images["mask"], images_file_paths["mask"] = self._load_input_image(case[1])
 
+        images["region"] = self.region
+
         # Predict and generate output
         out = self.predict(input_dict=images)
 
@@ -163,7 +171,7 @@ class BaseSynthradAlgorithm(ABC):
             "inputs": [
                 dict(type="metaio_image", filename=str(fn))
                 for fn in images_file_paths.values()
-            ],
+            ] + [dict(type="String", filename=str(self.region_path))],
             "error_messages": [],
         }
 

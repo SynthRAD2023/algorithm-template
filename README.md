@@ -109,6 +109,7 @@ algorithm-template
     │   │   └── 1BAxxx.nii.gz
     │   └── mri
     │       └── 1BAxxx.nii.gz
+    ├── region.json
     └── expected_output.json
 ```
 
@@ -131,26 +132,30 @@ The output of the test.sh script should look similar to this:
 ########## ENVIRONMENT VARIABLES ##########
 TASK_TYPE: mri
 INPUT_FOLDER: /input
-#Text outputs of your scripts will appear here
+Scan region:  Head and Neck
 [
     {
-        "error_messages": [],
-        "inputs": [
-            {
-                "filename": "/input/images/mri/1BAxxx.nii.gz",
-                "type": "metaio_image"
-            },
-            {
-                "filename": "/input/images/body/1BAxxx.nii.gz",
-                "type": "metaio_image"
-            }
-        ],
         "outputs": [
             {
-                "filename": "/output/images/synthetic-ct/1BAxxx.nii.gz",
-                "type": "metaio_image"
+                "type": "metaio_image",
+                "filename": "/output/images/synthetic-ct/1BAxxx.nii.gz"
             }
-        ]
+        ],
+        "inputs": [
+            {
+                "type": "metaio_image",
+                "filename": "/input/images/mri/1BAxxx.nii.gz"
+            },
+            {
+                "type": "metaio_image",
+                "filename": "/input/images/body/1BAxxx.nii.gz"
+            },
+            {
+                "type": "String",
+                "filename": "/input/region.json"
+            }
+        ],
+        "error_messages": []
     }
 ]
 Tests successfully passed...
@@ -182,6 +187,9 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
         self.model.eval()
 ```        
 
+
+### NEW: Obtaining region information for the scan.
+This is a newly added functionality based on requests from our participants. You can access a `"region"` key in the `input_dict` argument to the predict function. `process.py` shows a sample of how it can be obtained and used. 
 
 ### Making submissions to Task 1 and 2.
 Since the challenge contains two tasks, you will need to provide separate docker containers for each (even if you run the exact same algorithm on both). To configure which task your docker will be built for, we have provided a `.env` file. You can modify it before building the docker image and your docker will be built for the selected task.

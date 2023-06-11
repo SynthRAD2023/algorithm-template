@@ -14,6 +14,11 @@
             {
                 "type": "metaio_image",
                 "filename": "/input/images/body/1BAxxx.nii.gz"
+            },
+
+            {
+                "type": "String",
+                "filename": "/input/region.json"
             }
         ],
         "error_messages": []

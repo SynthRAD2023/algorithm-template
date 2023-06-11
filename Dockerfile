@@ -1,5 +1,4 @@
 FROM python:3.9-slim
-
 ARG task_type
 
 ENV TASK_TYPE=$task_type

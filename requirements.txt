@@ -1,7 +1,8 @@
 
 evalutils==0.3.1
-SimpleITK==2.0.2
+SimpleITK
 scikit-learn==0.24.2
+# torch # Uncomment if you want to use PyTorch
+numpy
 scipy==1.6.3
 python-dotenv==1.0.0
-torch
