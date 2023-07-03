@@ -188,6 +188,9 @@ class SynthradAlgorithm(BaseSynthradAlgorithm):
 ```        
 
 
+### NOTE
+GrandChallenge processes algorithm dockers on a per-scan basis as mentioned [here](https://grand-challenge.org/documentation/choose-input-and-output-interfaces/). The `test` folder in this repo represents one such case and simulates how the algorithm docker will be run on a single case when evaluating on gc. If you would like to test on multiple cases, please create copies of the test repository and add each case's data into them. You could make a trial submission and look at [debug instructions](https://grand-challenge.org/forums/forum/synthrad2023-643/topic/debugging-algorithm-docker-submissions-after-submitting-on-the-challenge-1478/) to see exactly how it is run on a case-by-case basis. 
+
 ### NEW: Obtaining region information for the scan.
 This is a newly added functionality based on requests from our participants. You can access a `"region"` key in the `input_dict` argument to the predict function. `process.py` shows a sample of how it can be obtained and used. 
 
